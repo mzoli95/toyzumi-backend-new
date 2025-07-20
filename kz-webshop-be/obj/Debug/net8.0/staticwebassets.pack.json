@@ -1,0 +1,49 @@
+{
+  "Files": [
+    {
+      "Id": "D:\\Workspace\\Toyzumi\\toyzumi-be\\kz-webshop-be\\wwwroot\\images\\products\\28836d3a-b029-4190-92f3-1c62353c6492.jpeg",
+      "PackagePath": "staticwebassets\\images\\products\\28836d3a-b029-4190-92f3-1c62353c6492.jpeg"
+    },
+    {
+      "Id": "D:\\Workspace\\Toyzumi\\toyzumi-be\\kz-webshop-be\\wwwroot\\images\\products\\3149c232-7c74-47dc-98e7-28244b41e6f8.jpeg",
+      "PackagePath": "staticwebassets\\images\\products\\3149c232-7c74-47dc-98e7-28244b41e6f8.jpeg"
+    },
+    {
+      "Id": "D:\\Workspace\\Toyzumi\\toyzumi-be\\kz-webshop-be\\wwwroot\\images\\products\\3f05ce57-e9cc-4f8a-b01c-e3046e6a92da.jpeg",
+      "PackagePath": "staticwebassets\\images\\products\\3f05ce57-e9cc-4f8a-b01c-e3046e6a92da.jpeg"
+    },
+    {
+      "Id": "D:\\Workspace\\Toyzumi\\toyzumi-be\\kz-webshop-be\\wwwroot\\images\\products\\735da56d-1750-4f14-b302-c7671d3144ad.jpeg",
+      "PackagePath": "staticwebassets\\images\\products\\735da56d-1750-4f14-b302-c7671d3144ad.jpeg"
+    },
+    {
+      "Id": "D:\\Workspace\\Toyzumi\\toyzumi-be\\kz-webshop-be\\wwwroot\\images\\products\\82a284be-391c-4b3b-a3eb-7d84673c788a.jpeg",
+      "PackagePath": "staticwebassets\\images\\products\\82a284be-391c-4b3b-a3eb-7d84673c788a.jpeg"
+    },
+    {
+      "Id": "D:\\Workspace\\Toyzumi\\toyzumi-be\\kz-webshop-be\\wwwroot\\images\\products\\f0e04689-8e7b-4307-b5dc-d281b07625c7.jpeg",
+      "PackagePath": "staticwebassets\\images\\products\\f0e04689-8e7b-4307-b5dc-d281b07625c7.jpeg"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.build.kz-webshop-be.props",
+      "PackagePath": "build\\kz-webshop-be.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildMultiTargeting.kz-webshop-be.props",
+      "PackagePath": "buildMultiTargeting\\kz-webshop-be.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildTransitive.kz-webshop-be.props",
+      "PackagePath": "buildTransitive\\kz-webshop-be.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.kz-webshop-be.Microsoft.AspNetCore.StaticWebAssetEndpoints.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssetEndpoints.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.kz-webshop-be.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

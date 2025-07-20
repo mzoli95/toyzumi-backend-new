@@ -1,0 +1,6 @@
+@kz_webshop_be_HostAddress = http://localhost:5104
+
+GET {{kz_webshop_be_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
