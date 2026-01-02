@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("kz-webshop-be")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+984a24518ca5635b45341e33447edc35a8cbc1cc")]
 [assembly: System.Reflection.AssemblyProductAttribute("kz-webshop-be")]
 [assembly: System.Reflection.AssemblyTitleAttribute("kz-webshop-be")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

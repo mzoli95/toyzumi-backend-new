@@ -10,5 +10,6 @@ public class FunkoPopProfile : Profile
     {
         CreateMap<FunkoPop, FunkoPopDto>().ReverseMap();
         CreateMap<FunkoPopTag, FunkoPopTagDto>().ReverseMap();
+        CreateMap<FunkoPopBadge, FunkoPopBadgeDto>().ReverseMap();
     }
 }

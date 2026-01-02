@@ -15,5 +15,6 @@ public class UserDto
     public DateTime UpdatedAt { get; set; }
     public bool IsDeleted { get; set; }
     public int Points { get; set; }
+    public bool IsNewsletterSubscribed { get; set; }
     public List<UserDiscountCodeDto>? DiscountCodes { get; set; }
 }

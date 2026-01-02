@@ -14,6 +14,7 @@ public class ShoppingCartItem
     public DateTime AddedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
+
     [JsonIgnore]
     public User User { get; set; }
 }

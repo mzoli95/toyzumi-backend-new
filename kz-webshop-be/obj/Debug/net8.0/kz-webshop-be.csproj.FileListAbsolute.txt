@@ -537,10 +537,14 @@ D:\Workspace\2025\toyzumi-backend-new\kz-webshop-be\obj\Debug\net8.0\staticwebas
 D:\Workspace\2025\toyzumi-backend-new\kz-webshop-be\obj\Debug\net8.0\staticwebassets\msbuild.buildMultiTargeting.kz-webshop-be.props
 D:\Workspace\2025\toyzumi-backend-new\kz-webshop-be\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.kz-webshop-be.props
 D:\Workspace\2025\toyzumi-backend-new\kz-webshop-be\obj\Debug\net8.0\staticwebassets.pack.json
-D:\Workspace\2025\toyzumi-backend-new\kz-webshop-be\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 D:\Workspace\2025\toyzumi-backend-new\kz-webshop-be\obj\Debug\net8.0\kz-websh.F70DBEF6.Up2Date
 D:\Workspace\2025\toyzumi-backend-new\kz-webshop-be\obj\Debug\net8.0\kz-webshop-be.dll
 D:\Workspace\2025\toyzumi-backend-new\kz-webshop-be\obj\Debug\net8.0\refint\kz-webshop-be.dll
 D:\Workspace\2025\toyzumi-backend-new\kz-webshop-be\obj\Debug\net8.0\kz-webshop-be.pdb
 D:\Workspace\2025\toyzumi-backend-new\kz-webshop-be\obj\Debug\net8.0\kz-webshop-be.genruntimeconfig.cache
 D:\Workspace\2025\toyzumi-backend-new\kz-webshop-be\obj\Debug\net8.0\ref\kz-webshop-be.dll
+D:\Workspace\2025\toyzumi-backend-new\kz-webshop-be\obj\Debug\net8.0\kz-webshop-be.sourcelink.json
+D:\Workspace\2025\toyzumi-backend-new\kz-webshop-be\bin\Debug\net8.0\Quartz.dll
+D:\Workspace\2025\toyzumi-backend-new\kz-webshop-be\bin\Debug\net8.0\Quartz.Extensions.DependencyInjection.dll
+D:\Workspace\2025\toyzumi-backend-new\kz-webshop-be\bin\Debug\net8.0\Quartz.Extensions.Hosting.dll
+D:\Workspace\2025\toyzumi-backend-new\kz-webshop-be\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

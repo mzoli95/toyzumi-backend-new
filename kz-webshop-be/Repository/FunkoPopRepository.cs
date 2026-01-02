@@ -20,6 +20,7 @@ public class FunkoPopRepository : IFunkoPopRepository
             .Include(f => f.Reviews)
             .Include(f => f.Comments)
             .Include(f => f.FunkoPopTags)
+            .Include(f => f.Badges)
             .Include(f => f.RelatedProducts)
             .ToListAsync();
 
@@ -30,6 +31,7 @@ public class FunkoPopRepository : IFunkoPopRepository
             .Include(f => f.Reviews)
             .Include(f => f.Comments)
             .Include(f => f.FunkoPopTags)
+            .Include(f => f.Badges)
             .Include(f => f.RelatedProducts)
             .FirstOrDefaultAsync(f => f.Id == id);
 
@@ -51,4 +53,14 @@ public class FunkoPopRepository : IFunkoPopRepository
 
     public async Task SaveChangesAsync()
         => await _context.SaveChangesAsync();
+
+    public async Task<IEnumerable<string>> SearchNamesAsync(string term, int maxResults = 10)
+    {
+        return await _context.FunkoPops
+            .Where(f => !f.IsDeleted && f.Name.Contains(term))
+            .OrderBy(f => f.Name)
+            .Select(f => f.Name)
+            .Take(maxResults)
+            .ToListAsync();
+    }
 }

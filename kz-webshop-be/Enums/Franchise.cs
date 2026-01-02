@@ -1,0 +1,35 @@
+﻿namespace kz_webshop_be.Enums;
+
+public enum Franchise
+{
+    Marvel,
+    StarWars,
+    Disney,
+    DC,
+    HarryPotter,
+    Pokemon,
+    StrangerThings,
+    Fortnite,
+    NBA,
+    NFL,
+    MyHeroAcademia,
+    OnePiece,
+    DragonBall,
+    Naruto,
+    RickAndMorty,
+    GameOfThrones,
+    LordOfTheRings,
+    JurassicPark,
+    Simpsons,
+    Friends,
+    Seinfeld,
+    BTS,
+    WWE,
+    Minecraft,
+    Sonic,
+    HelloKitty,
+    Overwatch,
+    MortalKombat,
+    StreetFighter,
+    Other
+}

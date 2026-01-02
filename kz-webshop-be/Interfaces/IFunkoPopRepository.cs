@@ -10,4 +10,5 @@ public interface IFunkoPopRepository
     Task UpdateAsync(FunkoPop funkoPop);
     Task DeleteAsync(FunkoPop funkoPop);
     Task SaveChangesAsync();
+    Task<IEnumerable<string>> SearchNamesAsync(string term, int maxResults = 10);
 }

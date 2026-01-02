@@ -18,6 +18,17 @@ public abstract class Product
     public bool IsDeleted { get; set; } = false;
     public string? CreatedBy { get; set; }
     public string? UpdatedBy { get; set; }
+    public string? Sku { get; set; } // Stock Keeping Unit
+    public string? Barcode { get; set; } 
+    public string? Brand { get; set; }
+    public bool IsNew { get; set; } = false;
+    public bool IsOnSale { get; set; } = false;
+    public double? AverageRating { get; set; }
+    public decimal? Weight { get; set; }
+    public ProductDimensions? Dimensions { get; set; }
+    public bool IsReStock { get; set; } = false;
+    public bool IsAvailable { get; set; } = false;
+
     public DateTime? ReleaseDate { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

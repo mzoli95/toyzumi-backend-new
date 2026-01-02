@@ -54,9 +54,15 @@ namespace kz_webshop_be.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime>("DateOfBirth")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("EmailVerified")
+                        .HasColumnType("bit");
 
                     b.Property<string>("FirebaseUid")
                         .IsRequired()
@@ -65,8 +71,17 @@ namespace kz_webshop_be.Migrations
                     b.Property<string>("FirstName")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("GDPRConsent")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
+
+                    b.Property<bool>("IsNewsletterSubscribed")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("LastLoginAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("LastName")
                         .HasColumnType("nvarchar(max)");
@@ -133,6 +148,25 @@ namespace kz_webshop_be.Migrations
                     b.ToTable("Addresses");
                 });
 
+            modelBuilder.Entity("kz_webshop_be.Models.FunkoPopBadge", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Badge")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("FunkoPopId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FunkoPopId");
+
+                    b.ToTable("FunkoPopBadges");
+                });
+
             modelBuilder.Entity("kz_webshop_be.Models.FunkoPopTag", b =>
                 {
                     b.Property<Guid>("Id")
@@ -142,9 +176,8 @@ namespace kz_webshop_be.Migrations
                     b.Property<Guid>("FunkoPopId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Name")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -289,6 +322,15 @@ namespace kz_webshop_be.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<double?>("AverageRating")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Barcode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Brand")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -301,7 +343,19 @@ namespace kz_webshop_be.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsAvailable")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsNew")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsOnSale")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsReStock")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsVisible")
@@ -334,6 +388,9 @@ namespace kz_webshop_be.Migrations
                     b.Property<decimal?>("SalePrice")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<string>("Sku")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("Stock")
                         .HasColumnType("int");
 
@@ -342,6 +399,9 @@ namespace kz_webshop_be.Migrations
 
                     b.Property<string>("UpdatedBy")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal?>("Weight")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
@@ -439,6 +499,61 @@ namespace kz_webshop_be.Migrations
                     b.ToTable("ProductReviews");
                 });
 
+            modelBuilder.Entity("kz_webshop_be.Models.Promotion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal?>("DiscountPercent")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("FreeShippingFrom")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PromotionCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PromotionText")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Promotions");
+                });
+
+            modelBuilder.Entity("kz_webshop_be.Models.RecentlyViewedItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("ProductType")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("ViewedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RecentlyViewedItems");
+                });
+
             modelBuilder.Entity("kz_webshop_be.Models.RelatedProduct", b =>
                 {
                     b.Property<Guid>("ProductId")
@@ -519,8 +634,14 @@ namespace kz_webshop_be.Migrations
                     b.Property<int>("Category")
                         .HasColumnType("int");
 
-                    b.Property<string>("Franchise")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int?>("Franchise")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsChase")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsExclusive")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IsLimitedEdition")
                         .HasColumnType("bit");
@@ -528,7 +649,7 @@ namespace kz_webshop_be.Migrations
                     b.Property<bool>("IsPreorder")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsUsed")
+                    b.Property<bool>("IsSpecial")
                         .HasColumnType("bit");
 
                     b.HasIndex("Category");
@@ -544,9 +665,6 @@ namespace kz_webshop_be.Migrations
 
                             t.Property("IsPreorder")
                                 .HasColumnName("FunkoPop_IsPreorder");
-
-                            t.Property("IsUsed")
-                                .HasColumnName("FunkoPop_IsUsed");
                         });
 
                     b.HasDiscriminator().HasValue("FunkoPop");
@@ -589,6 +707,17 @@ namespace kz_webshop_be.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("kz_webshop_be.Models.FunkoPopBadge", b =>
+                {
+                    b.HasOne("kz_webshop_be.Models.FunkoPop", "FunkoPop")
+                        .WithMany("Badges")
+                        .HasForeignKey("FunkoPopId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FunkoPop");
                 });
 
             modelBuilder.Entity("kz_webshop_be.Models.FunkoPopTag", b =>
@@ -646,6 +775,36 @@ namespace kz_webshop_be.Migrations
                     b.Navigation("Order");
                 });
 
+            modelBuilder.Entity("kz_webshop_be.Models.Product", b =>
+                {
+                    b.OwnsOne("kz_webshop_be.Models.ProductDimensions", "Dimensions", b1 =>
+                        {
+                            b1.Property<Guid>("ProductId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<decimal>("Depth")
+                                .HasColumnType("decimal(18,2)")
+                                .HasColumnName("Depth");
+
+                            b1.Property<decimal>("Height")
+                                .HasColumnType("decimal(18,2)")
+                                .HasColumnName("Height");
+
+                            b1.Property<decimal>("Width")
+                                .HasColumnType("decimal(18,2)")
+                                .HasColumnName("Width");
+
+                            b1.HasKey("ProductId");
+
+                            b1.ToTable("Product");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ProductId");
+                        });
+
+                    b.Navigation("Dimensions");
+                });
+
             modelBuilder.Entity("kz_webshop_be.Models.ProductComment", b =>
                 {
                     b.HasOne("kz_webshop_be.Models.Product", "Product")
@@ -691,6 +850,17 @@ namespace kz_webshop_be.Migrations
                         .IsRequired();
 
                     b.Navigation("Product");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("kz_webshop_be.Models.RecentlyViewedItem", b =>
+                {
+                    b.HasOne("User", "User")
+                        .WithMany("RecentlyViewedItems")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
@@ -757,6 +927,8 @@ namespace kz_webshop_be.Migrations
 
                     b.Navigation("Orders");
 
+                    b.Navigation("RecentlyViewedItems");
+
                     b.Navigation("ShoppingCartItems");
 
                     b.Navigation("UserDiscountCodes");
@@ -783,6 +955,8 @@ namespace kz_webshop_be.Migrations
 
             modelBuilder.Entity("kz_webshop_be.Models.FunkoPop", b =>
                 {
+                    b.Navigation("Badges");
+
                     b.Navigation("FunkoPopTags");
                 });
 #pragma warning restore 612, 618

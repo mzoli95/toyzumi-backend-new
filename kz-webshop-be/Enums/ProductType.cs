@@ -3,5 +3,7 @@
 public enum ProductType
 {
     FunkoPop = 0,
-    Labubu = 1
+    Labubu = 1,
+    TGC = 2,
+    Generic = 3,
 }

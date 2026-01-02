@@ -2,6 +2,9 @@
 using kz_webshop_be.Interfaces;
 using kz_webshop_be.Models;
 using kz_webshop_be.DTOs;
+using kz_webshop_be.Enums;
+using kz_webshop_be.Repository;
+using Microsoft.EntityFrameworkCore;
 
 namespace kz_webshop_be.Controllers;
 
@@ -10,10 +13,14 @@ namespace kz_webshop_be.Controllers;
 public class LabubuController : ControllerBase
 {
     private readonly ILabubuRepository _labubuRepository;
+    private readonly IUserRepository _userRepository;
 
-    public LabubuController(ILabubuRepository labubuRepository)
+    public LabubuController(
+        ILabubuRepository labubuRepository,
+        IUserRepository userRepository)
     {
-        _labubuRepository = labubuRepository;
+        _labubuRepository  = labubuRepository;
+        _userRepository = userRepository;
     }
 
     [HttpGet]
@@ -29,6 +36,11 @@ public class LabubuController : ControllerBase
         var labubu = await _labubuRepository.GetByIdAsync(id);
         if (labubu == null)
             return NotFound();
+
+        var userId = await _userRepository.GetInternalUserIdByFirebaseAuthAsync(User);
+        if (userId != null && userId != Guid.Empty)
+            await _userRepository.AddRecentlyViewedAsync(userId.Value, id, ProductType.Labubu);
+
         return Ok(MapToDetailDto(labubu));
     }
 
@@ -75,7 +87,7 @@ public class LabubuController : ControllerBase
         existing.MaxOrderQuantity = dto.MaxOrderQuantity;
         existing.MinOrderQuantity = dto.MinOrderQuantity;
         existing.UpdatedAt = DateTime.UtcNow;
-
+        existing.IsOnSale = dto.IsOnSale;
         // Kapcsolt entitások szinkronizálása (ha szükséges, implementáld a repository-ban!)
 
         await _labubuRepository.UpdateAsync(existing);
@@ -115,6 +127,7 @@ public class LabubuController : ControllerBase
         UpdatedAt = l.UpdatedAt,
         IsActive = l.IsActive,
         IsVisible = l.IsVisible,
+        ProductType = ProductType.Labubu,
         MaxOrderQuantity = l.MaxOrderQuantity,
         MinOrderQuantity = l.MinOrderQuantity,
         Images = l.Images?.Select(i => new ProductImageDto
@@ -169,20 +182,20 @@ public class LabubuController : ControllerBase
         MinOrderQuantity = dto.MinOrderQuantity,
         Images = dto.Images?.Select(i => new ProductImage
         {
-            Id = i.Id != Guid.Empty ? i.Id : Guid.NewGuid(),
+            Id = i.Id ?? Guid.NewGuid(),
             Url = i.Url,
             SortOrder = i.SortOrder
         }).ToList(),
         RelatedProducts = dto.RelatedProducts?.Select(r => new RelatedProduct
         {
-            ProductId = r.ProductId,
+            ProductId = r.ProductId ?? new Guid(),
             ProductType = r.ProductType,
             RelatedToId = r.RelatedToId,
             RelatedToType = r.RelatedToType
         }).ToList(),
         Reviews = dto.Reviews?.Select(r => new ProductReview
         {
-            Id = r.Id != Guid.Empty ? r.Id : Guid.NewGuid(),
+            Id = r.Id ?? Guid.NewGuid(),
             UserId = r.UserId,
             Stars = r.Stars,
             ReviewText = r.ReviewText,
@@ -191,7 +204,7 @@ public class LabubuController : ControllerBase
         }).ToList(),
         Comments = dto.Comments?.Select(c => new ProductComment
         {
-            Id = c.Id != Guid.Empty ? c.Id : Guid.NewGuid(),
+            Id = c.Id ?? Guid.NewGuid(),
             UserId = c.UserId,
             CommentText = c.CommentText,
             CreatedAt = c.CreatedAt,

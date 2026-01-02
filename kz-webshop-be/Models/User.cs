@@ -16,6 +16,13 @@ public class User
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     public bool IsDeleted { get; set; } = false;
     public int Points { get; set; } = 0;
+    public bool IsNewsletterSubscribed { get; set; } = false;
+    public bool EmailVerified { get; set; } = false;
+    public DateTime LastLoginAt { get; set; } = DateTime.UtcNow;
+    public bool GDPRConsent { get; set; } = false;
+    public DateTime DateOfBirth { get; set; } = DateTime.UtcNow;
+
+
 
     [JsonIgnore]
     public List<Address> Addresses { get; set; } = new();
@@ -27,6 +34,7 @@ public class User
     public List<Order> Orders { get; set; } = new();
     [JsonIgnore]
     public List<LikedItem> LikedItems { get; set; } = new();
-
+    [JsonIgnore]
+    public List<RecentlyViewedItem> RecentlyViewedItems { get; set; } = new();
 }
 

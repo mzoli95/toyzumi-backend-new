@@ -4,6 +4,7 @@ using kz_webshop_be.Models;
 using kz_webshop_be.DTOs;
 using Microsoft.EntityFrameworkCore;
 using Azure.Storage.Blobs;
+using kz_webshop_be.Enums;
 
 namespace kz_webshop_be.Controllers;
 
@@ -13,19 +14,71 @@ public class FunkoPopController : ControllerBase
 {
     private readonly IFunkoPopRepository _funkoPopRepository;
     private readonly ApplicationDbContext _context;
+    private readonly IUserRepository _userRepository;
 
     public FunkoPopController(
         IFunkoPopRepository funkoPopRepository,
-        ApplicationDbContext context)
+        ApplicationDbContext context,
+        IUserRepository userRepository)
     {
         _funkoPopRepository = funkoPopRepository;
         _context = context;
+        _userRepository = userRepository;
     }
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<FunkoPopDto>>> GetAll()
+
+    [HttpGet("get-all")]
+    public async Task<ActionResult<PagedResult<FunkoPopDto>>> GetAllFunkoPops(
+     [FromQuery] int page = 1,
+     [FromQuery] int pageSize = 20,
+     [FromQuery] string? searchTerm = null,
+     CancellationToken cancellationToken = default)
     {
-        var funkos = await _funkoPopRepository.GetAllAsync();
-        return Ok(funkos.Select(MapToDetailDto));
+        if (page < 1) page = 1;
+        if (pageSize < 1) pageSize = 20;
+
+        var query = _context.FunkoPops
+            .AsNoTracking()
+            .Include(f => f.Images)
+            .Include(f => f.Reviews)
+            .Include(f => f.Comments)
+            .Include(f => f.FunkoPopTags)
+            .Include(f => f.Badges)
+            .Include(f => f.RelatedProducts)
+            .Where(d => !d.IsDeleted);
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var lowered = searchTerm.ToLower();
+            query = query.Where(f =>
+                (!string.IsNullOrEmpty(f.Name) && f.Name.ToLower().Contains(lowered)) ||
+                (!string.IsNullOrEmpty(f.Description) && f.Description.ToLower().Contains(lowered))
+            );
+        }
+
+        var totalCount = await query.CountAsync(cancellationToken);
+        var funkos = await query
+            .OrderBy(f => f.Name)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        var result = new PagedResult<FunkoPopDto>
+        {
+            Items = funkos.Select(MapToDetailDto).ToList(),
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize
+        };
+
+        return Ok(result);
+    }
+
+    public class PagedResult<T>
+    {
+        public List<T> Items { get; set; } = [];
+        public int TotalCount { get; set; }
+        public int Page { get; set; }
+        public int PageSize { get; set; }
     }
 
     [HttpGet("{id:guid}")]
@@ -34,6 +87,11 @@ public class FunkoPopController : ControllerBase
         var funko = await _funkoPopRepository.GetByIdAsync(id);
         if (funko == null)
             return NotFound();
+
+        var userId = await _userRepository.GetInternalUserIdByFirebaseAuthAsync(User);
+        if (userId != null && userId != Guid.Empty)
+            await _userRepository.AddRecentlyViewedAsync(userId.Value, id, ProductType.FunkoPop);
+
         return Ok(MapToDetailDto(funko));
     }
 
@@ -45,15 +103,23 @@ public class FunkoPopController : ControllerBase
         funkoPop.CreatedAt = DateTime.UtcNow;
         funkoPop.UpdatedAt = DateTime.UtcNow;
 
-        // Itt állítsd be a képek ProductId-ját
         if (funkoPop.Images != null)
         {
             foreach (var image in funkoPop.Images)
             {
                 image.ProductId = funkoPop.Id;
-                    image.Id = Guid.NewGuid();
-
+                image.Id = Guid.NewGuid();
                 _context.ProductImages.Add(image);
+            }
+        }
+
+        if (funkoPop.Badges != null)
+        {
+            foreach (var badge in funkoPop.Badges)
+            {
+                badge.FunkoPopId = funkoPop.Id;
+                badge.Id = Guid.NewGuid();
+                _context.FunkoPopBadges.Add(badge);
             }
         }
 
@@ -74,7 +140,7 @@ public class FunkoPopController : ControllerBase
         if (existing == null)
             return NotFound();
 
-        // Handle images - remove old ones and add new ones
+        // Images
         if (dto.Images != null)
         {
             var existingImages = await _context.ProductImages
@@ -88,7 +154,7 @@ public class FunkoPopController : ControllerBase
             {
                 var image = new ProductImage
                 {
-                    Id = imageDto.Id != Guid.Empty ? imageDto.Id : Guid.NewGuid(),
+                    Id = imageDto.Id ?? Guid.NewGuid(),
                     ProductId = id,
                     Url = imageDto.Url,
                     SortOrder = imageDto.SortOrder
@@ -97,7 +163,29 @@ public class FunkoPopController : ControllerBase
             }
         }
 
-        // Handle tags - remove old ones and add new ones
+        // Badges
+        if (dto.Badges != null)
+        {
+            var existingBadges = await _context.FunkoPopBadges
+                .Where(b => b.FunkoPopId == id)
+                .ToListAsync();
+
+            if (existingBadges.Any())
+                _context.FunkoPopBadges.RemoveRange(existingBadges);
+
+            foreach (var badgeDto in dto.Badges)
+            {
+                var badgeEntity = new FunkoPopBadge
+                {
+                    Id = badgeDto.Id ?? Guid.NewGuid(),
+                    FunkoPopId = id,
+                    Badge = badgeDto.Badge
+                };
+                _context.FunkoPopBadges.Add(badgeEntity);
+            }
+        }
+
+        // Tags
         if (dto.FunkoPopTags != null)
         {
             var existingTags = await _context.FunkoPopTags
@@ -111,7 +199,7 @@ public class FunkoPopController : ControllerBase
             {
                 var tag = new FunkoPopTag
                 {
-                    Id = tagDto.Id != Guid.Empty ? tagDto.Id : Guid.NewGuid(),
+                    Id = tagDto.Id ?? Guid.NewGuid(),
                     FunkoPopId = id,
                     Name = tagDto.Name
                 };
@@ -119,7 +207,8 @@ public class FunkoPopController : ControllerBase
             }
         }
 
-        // Frissítés
+        // Update main properties
+        existing.AverageRating = dto.AverageRating;
         existing.Name = dto.Name;
         existing.Description = dto.Description;
         existing.Price = dto.Price;
@@ -128,18 +217,31 @@ public class FunkoPopController : ControllerBase
         existing.Category = dto.Category;
         existing.Franchise = dto.Franchise;
         existing.IsLimitedEdition = dto.IsLimitedEdition;
-        existing.IsPreorder = dto.IsPreorder;
-        existing.IsUsed = dto.IsUsed;
+
+
+        if (existing.ReleaseDate.HasValue && existing.ReleaseDate.Value > DateTime.UtcNow)
+        {
+            existing.IsPreorder = true;
+        }
+        else
+        {
+            existing.IsPreorder = false;
+        }
+
+        existing.CreatedBy = dto.CreatedBy;
+        existing.UpdatedBy = dto.UpdatedBy;
+        existing.IsExclusive = dto.IsExclusive;
+        existing.IsChase = dto.IsChase;
         existing.Stock = dto.Stock;
         existing.ReleaseDate = dto.ReleaseDate;
         existing.IsActive = dto.IsActive;
+        existing.IsNew = dto.IsNew;
         existing.IsVisible = dto.IsVisible;
         existing.MaxOrderQuantity = dto.MaxOrderQuantity;
         existing.MinOrderQuantity = dto.MinOrderQuantity;
         existing.UpdatedAt = DateTime.UtcNow;
-
-        // Kapcsolt entitások szinkronizálása (ha szükséges, implementáld a repository-ban!)
-
+        existing.IsReStock = dto.IsReStock;
+        existing.Dimensions = dto.Dimensions;
         await _funkoPopRepository.UpdateAsync(existing);
         await _funkoPopRepository.SaveChangesAsync();
         return NoContent();
@@ -170,13 +272,28 @@ public class FunkoPopController : ControllerBase
         Franchise = f.Franchise,
         IsLimitedEdition = f.IsLimitedEdition,
         IsPreorder = f.IsPreorder,
-        IsUsed = f.IsUsed,
+        IsExclusive = f.IsExclusive,
+        IsChase = f.IsChase,
         Stock = f.Stock,
         ReleaseDate = f.ReleaseDate,
         CreatedAt = f.CreatedAt,
         UpdatedAt = f.UpdatedAt,
         IsActive = f.IsActive,
         IsVisible = f.IsVisible,
+        AverageRating = f.AverageRating,
+        Barcode = f.Barcode ,
+        Brand = f.Brand,
+        CreatedBy = f.CreatedBy ,
+        Dimensions = f.Dimensions,
+        IsDeleted = f.IsDeleted,
+        IsNew = f.IsNew,
+        IsOnSale = f.IsOnSale,
+        IsAvailable = f.IsAvailable,
+        IsReStock = f.IsReStock,
+        Sku = f.Sku,
+        UpdatedBy = f.UpdatedBy,
+        ProductType = ProductType.FunkoPop,
+        Weight = f.Weight,
         MaxOrderQuantity = f.MaxOrderQuantity,
         MinOrderQuantity = f.MinOrderQuantity,
         Images = f.Images?.Select(i => new ProductImageDto
@@ -186,9 +303,16 @@ public class FunkoPopController : ControllerBase
             Url = i.Url,
             SortOrder = i.SortOrder
         }).ToList(),
+        Badges = f.Badges?.Select(b => new FunkoPopBadgeDto
+        {
+            Id = b.Id,
+            FunkoPopId = b.FunkoPopId,
+            Badge = b.Badge
+        }).ToList(),
         FunkoPopTags = f.FunkoPopTags?.Select(t => new FunkoPopTagDto
         {
             Id = t.Id,
+            FunkoPopId = t.FunkoPopId,
             Name = t.Name
         }).ToList(),
         RelatedProducts = f.RelatedProducts?.Select(r => new RelatedProductDto
@@ -228,35 +352,58 @@ public class FunkoPopController : ControllerBase
         Franchise = dto.Franchise,
         IsLimitedEdition = dto.IsLimitedEdition,
         IsPreorder = dto.IsPreorder,
-        IsUsed = dto.IsUsed,
+        IsExclusive = dto.IsExclusive,
+        IsChase = dto.IsChase,
         Stock = dto.Stock,
+        IsAvailable = dto.IsAvailable,
+        IsReStock= dto.IsReStock, 
         ReleaseDate = dto.ReleaseDate,
         IsActive = dto.IsActive,
         IsVisible = dto.IsVisible,
+        IsDeleted = dto.IsDeleted,
+        AverageRating = dto.AverageRating,
+        Weight = dto.Weight,
+        Barcode = dto.Barcode,
+        Brand = dto.Brand,
+        CreatedAt = dto.CreatedAt,
+        CreatedBy = dto.CreatedBy,
+        Dimensions = dto.Dimensions,
+        IsNew = dto.IsNew,
+        IsOnSale = dto.IsOnSale,
+        Sku = dto.Sku,
+        UpdatedAt = dto.UpdatedAt,
+        UpdatedBy = dto.UpdatedBy,
         MaxOrderQuantity = dto.MaxOrderQuantity,
         MinOrderQuantity = dto.MinOrderQuantity,
         Images = dto.Images?.Select(i => new ProductImage
         {
-            Id = i.Id != Guid.Empty ? i.Id : Guid.NewGuid(),
+            Id = i.Id ?? Guid.NewGuid(),
             ProductId = i.ProductId,
             Url = i.Url,
             SortOrder = i.SortOrder
         }).ToList(),
+        Badges = dto.Badges?.Select(b => new FunkoPopBadge
+        {
+            Id = b.Id ?? Guid.NewGuid(),
+            FunkoPopId = b.FunkoPopId,
+            Badge = b.Badge
+        }).ToList() ?? new List<FunkoPopBadge>(),
         FunkoPopTags = dto.FunkoPopTags?.Select(t => new FunkoPopTag
         {
-            Id = t.Id != Guid.Empty ? t.Id : Guid.NewGuid(),
+            Id = t.Id ?? Guid.NewGuid(),
+            FunkoPopId = t.FunkoPopId,
             Name = t.Name
         }).ToList(),
         RelatedProducts = dto.RelatedProducts?.Select(r => new RelatedProduct
         {
-            ProductId = r.ProductId,
+            ProductId = r.ProductId ?? new Guid(),
             ProductType = r.ProductType,
             RelatedToId = r.RelatedToId,
             RelatedToType = r.RelatedToType
         }).ToList(),
         Reviews = dto.Reviews?.Select(r => new ProductReview
         {
-            Id = r.Id != Guid.Empty ? r.Id : Guid.NewGuid(),
+            Id = r.Id ?? Guid.NewGuid(),
             UserId = r.UserId,
             Stars = r.Stars,
             ReviewText = r.ReviewText,
@@ -265,7 +412,7 @@ public class FunkoPopController : ControllerBase
         }).ToList(),
         Comments = dto.Comments?.Select(c => new ProductComment
         {
-            Id = c.Id != Guid.Empty ? c.Id : Guid.NewGuid(),
+            Id = c.Id ?? Guid.NewGuid(),
             UserId = c.UserId,
             CommentText = c.CommentText,
             CreatedAt = c.CreatedAt,
@@ -273,14 +420,12 @@ public class FunkoPopController : ControllerBase
         }).ToList()
     };
 
-
     [HttpPost("upload-main-image")]
     public async Task<IActionResult> UploadMainImage([FromForm] IFormFile image)
     {
         if (image == null || image.Length == 0)
             return BadRequest("No image uploaded");
 
-        // Csak képfájlokat engedélyezünk
         var allowedContentTypes = new[] { "image/jpeg", "image/png", "image/webp", "image/gif" };
         if (!allowedContentTypes.Contains(image.ContentType))
             return BadRequest("Only image files are allowed.");
@@ -344,6 +489,16 @@ public class FunkoPopController : ControllerBase
         if (results.Count == 0)
             return BadRequest("No valid images uploaded.");
 
-        return Ok(results.ToArray()); // <-- Itt tömb lesz a válasz
+        return Ok(results.ToArray());
+    }
+
+    [HttpGet("search")]
+    public async Task<ActionResult<IEnumerable<string>>> Search([FromQuery] string term, [FromQuery] int maxResults = 10)
+    {
+        if (string.IsNullOrWhiteSpace(term))
+            return BadRequest("Search term is required.");
+
+        var results = await _funkoPopRepository.SearchNamesAsync(term, maxResults);
+        return Ok(results);
     }
 }

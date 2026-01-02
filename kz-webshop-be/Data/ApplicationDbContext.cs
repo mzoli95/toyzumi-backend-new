@@ -16,6 +16,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<RelatedProduct> RelatedProducts { get; set; }
 
     public DbSet<FunkoPopTag> FunkoPopTags { get; set; }
+    public DbSet<FunkoPopBadge> FunkoPopBadges { get; set; }
 
     public DbSet<ShoppingCartItem> ShoppingCartItems { get; set; }
     public DbSet<Order> Orders { get; set; }
@@ -25,7 +26,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<Invoice> Invoices { get; set; }
     public DbSet<DiscountCode> DiscountCodes { get; set; }
     public DbSet<UserDiscountCode> UserDiscountCodes { get; set; }
-
+    public DbSet<Promotion> Promotions { get; set; }
+    public DbSet<RecentlyViewedItem> RecentlyViewedItems { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -39,6 +41,14 @@ public class ApplicationDbContext : DbContext
             .HasDiscriminator<string>("ProductType")
             .HasValue<FunkoPop>("FunkoPop")
             .HasValue<Labubu>("Labubu");
+
+        modelBuilder.Entity<Product>()
+            .OwnsOne(p => p.Dimensions, pd =>
+            {
+                pd.Property(d => d.Width).HasColumnName("Width");
+                pd.Property(d => d.Height).HasColumnName("Height");
+                pd.Property(d => d.Depth).HasColumnName("Depth");
+            });
 
         modelBuilder.Entity<ProductImage>()
             .HasOne(pi => pi.Product)
@@ -98,6 +108,15 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Labubu>()
             .HasIndex(l => l.Edition);
 
+        modelBuilder.Entity<FunkoPopBadge>()
+            .HasKey(fpb => fpb.Id);
+
+        modelBuilder.Entity<FunkoPopBadge>()
+            .HasOne(fpb => fpb.FunkoPop)
+            .WithMany(fp => fp.Badges)
+            .HasForeignKey(fpb => fpb.FunkoPopId);
+
+
         modelBuilder.Entity<FunkoPopTag>()
             .HasKey(ft => ft.Id);
 
@@ -150,5 +169,17 @@ public class ApplicationDbContext : DbContext
             .WithMany(u => u.LikedItems)
             .HasForeignKey(li => li.UserId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<RecentlyViewedItem>()
+        .HasKey(rvi => rvi.Id);
+
+        modelBuilder.Entity<RecentlyViewedItem>()
+            .HasOne(rvi => rvi.User)
+            .WithMany(u => u.RecentlyViewedItems)
+            .HasForeignKey(rvi => rvi.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<RecentlyViewedItem>()
+        .HasIndex(rvi => rvi.UserId);
     }
 }

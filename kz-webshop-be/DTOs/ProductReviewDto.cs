@@ -2,7 +2,7 @@
 
 public class ProductReviewDto
 {
-    public Guid Id { get; set; }
+    public Guid? Id { get; set; }
     public Guid UserId { get; set; }
     public int Stars { get; set; }
     public string? ReviewText { get; set; }

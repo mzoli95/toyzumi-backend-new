@@ -12,4 +12,9 @@ public class ShoppingCartItemDto
     public decimal UnitPrice { get; set; }
     public DateTime AddedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
+        public string Name { get; set; } = string.Empty;
+    public string MainImageUrl { get; set; } = string.Empty;
+    public decimal? OriginalPrice { get; set; }
+    public bool? IsPreorder { get; set; } = false;
+    public DateTime? ReleaseDate { get; set; }
 }

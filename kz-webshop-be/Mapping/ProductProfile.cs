@@ -8,8 +8,28 @@ public class ProductProfile : Profile
 {
     public ProductProfile()
     {
-        // FunkoPop
-        CreateMap<FunkoPop, FunkoPopDto>().ReverseMap();
+        CreateMap<FunkoPop, FunkoPopDto>()
+           .ForMember(dest => dest.Badges, opt => opt.MapFrom(src => src.Badges != null
+               ? src.Badges.Select(b => new FunkoPopBadgeDto
+               {
+                   Id = b.Id,
+                   FunkoPopId = b.FunkoPopId,
+                   Badge = b.Badge
+               }).ToList()
+               : new List<FunkoPopBadgeDto>()))
+           .ForMember(dest => dest.FunkoPopTags, opt => opt.MapFrom(src => src.FunkoPopTags))
+           .ReverseMap()
+           .ForMember(dest => dest.Badges, opt => opt.MapFrom(src => src.Badges != null
+               ? src.Badges.Select(b => new FunkoPopBadge
+               {
+                   Id = b.Id ?? new Guid(),
+                   FunkoPopId = b.FunkoPopId,
+                   Badge = b.Badge
+               }).ToList()
+               : new List<FunkoPopBadge>()))
+           .ForMember(dest => dest.FunkoPopTags, opt => opt.MapFrom(src => src.FunkoPopTags));
+
+        CreateMap<FunkoPopBadge, FunkoPopBadgeDto>().ReverseMap();
         CreateMap<FunkoPopTag, FunkoPopTagDto>().ReverseMap();
 
         // Labubu
