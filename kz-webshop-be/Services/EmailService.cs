@@ -1,23 +1,41 @@
 ﻿using kz_webshop_be.Repository;
 using System.Net.Mail;
 using System.Net;
+using Microsoft.Extensions.Configuration;
 
 namespace kz_webshop_be.Services
 {
     public class EmailService : IEmailService
     {
+        private readonly IConfiguration _configuration;
+
+        public EmailService(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+
         public async Task SendEmailAsync(string to, string subject, string body)
         {
             try
             {
-                using var client = new SmtpClient("smtp.gmail.com", 587)
+                var smtpHost = _configuration["Email:SmtpHost"] ?? "smtp.gmail.com";
+                
+                var smtpPortString = _configuration["Email:SmtpPort"] ?? "587";
+                if (!int.TryParse(smtpPortString, out var smtpPort))
                 {
-                    //Sony0714**/
-                    Credentials = new NetworkCredential("mzoltan0714@gmail.com", "krvh vrtr imxr bhwr"),
+                    throw new InvalidOperationException($"Invalid Email:SmtpPort configuration value: '{smtpPortString}'. Expected a valid integer.");
+                }
+                
+                var fromEmail = _configuration["Email:FromEmail"] ?? throw new InvalidOperationException("Email:FromEmail is not configured");
+                var password = _configuration["Email:Password"] ?? throw new InvalidOperationException("Email:Password is not configured");
+
+                using var client = new SmtpClient(smtpHost, smtpPort)
+                {
+                    Credentials = new NetworkCredential(fromEmail, password),
                     EnableSsl = true
                 };
 
-                var mail = new MailMessage("mzoltan0714@gmail.com", to, subject, body)
+                var mail = new MailMessage(fromEmail, to, subject, body)
                 {
                     IsBodyHtml = true
                 };

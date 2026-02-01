@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="..\build\kz-webshop-be.props" />
-</Project>
