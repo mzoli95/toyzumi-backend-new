@@ -19,7 +19,13 @@ namespace kz_webshop_be.Services
             try
             {
                 var smtpHost = _configuration["Email:SmtpHost"] ?? "smtp.gmail.com";
-                var smtpPort = int.Parse(_configuration["Email:SmtpPort"] ?? "587");
+                
+                var smtpPortString = _configuration["Email:SmtpPort"] ?? "587";
+                if (!int.TryParse(smtpPortString, out var smtpPort))
+                {
+                    throw new InvalidOperationException($"Invalid Email:SmtpPort configuration value: '{smtpPortString}'. Expected a valid integer.");
+                }
+                
                 var fromEmail = _configuration["Email:FromEmail"] ?? throw new InvalidOperationException("Email:FromEmail is not configured");
                 var password = _configuration["Email:Password"] ?? throw new InvalidOperationException("Email:Password is not configured");
 

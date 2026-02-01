@@ -29,9 +29,6 @@ bld/
 .vs/
 /.vs/kz-webshop-be
 
-## Visual Studio cache/options directory
-.vs/
-
 ## User Secrets (DO NOT COMMIT)
 **/appsettings.Development.json
 **/appsettings.Production.json
